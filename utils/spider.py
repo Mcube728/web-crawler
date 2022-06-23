@@ -15,6 +15,7 @@ def run(toVisit):
         crawl(link)
 
 def crawl(url):
+    info_logger('crawl() method called')
     visited = []
     toVisit = []
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36 QIHU 360SE'}
@@ -33,7 +34,12 @@ def crawl(url):
     soup = BeautifulSoup(r.text, 'html.parser')
     info_logger(f'Now crawling ==> {soup.title.text}:{url}')
     visited.append(url)
+    fileWriter('./data_export/visited_links.txt', soup.title.text + ": " + url + "\n")
 
+def fileWriter(path, data):
+    f = open(path, 'a')
+    f.write(data)
+    f.close()
 
 def getAnchors(soup, url):
     info_logger('getAnchors() called')
