@@ -1,10 +1,9 @@
-from distutils.log import info
-from time import asctime
 from mushroom_soup import *
+from time import asctime
+from info_log import *
+from error_log import *
 import requests
 import os
-from info_log import info_logger
-from error_log import error_logger
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 import queue
@@ -16,6 +15,8 @@ def run(toVisit):
         crawl(link)
 
 def crawl(url):
+    visited = []
+    toVisit = []
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36 QIHU 360SE'}
     try: 
         r = requests.get(url, headers=headers)
@@ -30,7 +31,9 @@ def crawl(url):
         error_logger('An Error Occurred')
     info_logger(f'Status code of request set to {url}: {r.status_code}')
     soup = BeautifulSoup(r.text, 'html.parser')
-    info_logger(f'Now crawling {soup.title.text}:{url}')
+    info_logger(f'Now crawling ==> {soup.title.text}:{url}')
+    visited.append(url)
+
 
 def getAnchors(soup, url):
     info_logger('getAnchors() called')

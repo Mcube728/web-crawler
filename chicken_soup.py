@@ -6,7 +6,7 @@ mind this file.
 
 import requests
 import os
-from utils.info_log import info_logger
+from utils.info_log import *
 from utils.error_log import error_logger
 from utils.mushroom_soup import *
 from urllib.parse import urljoin
@@ -21,4 +21,4 @@ print(f'Status of request sent to {url}: {r.status_code}')
 s = BeautifulSoup(r.text, 'html.parser')
 # s.find("title").text
 # s.title.text
-print(f'Title of url: {s.find("title").text}')
+info_logger(f'Title of url: {s.find("title").text}')
