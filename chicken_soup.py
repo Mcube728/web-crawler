@@ -1,27 +1,24 @@
 '''
-this is just a tester file to see if things work
+this is just a scratchpad python file that is 
+used to test out a few things, please do not 
+mind this file. 
 '''
-from urllib.error import HTTPError
+
 import requests
+import os
+from utils.info_log import info_logger
+from utils.error_log import error_logger
+from utils.mushroom_soup import *
+from urllib.parse import urljoin
 from bs4 import BeautifulSoup
-import ssl
-import urllib.robotparser as urobot
 
-# Ignore SSL certificate errors
-ctx = ssl.create_default_context()
-ctx.check_hostname = False
-ctx.verify_mode = ssl.CERT_NONE
-
-url="https://www.4chan.org/"
+url="https://www.reddit.com"
 #url="http://docs.python-requests.org/en/latest/user/quickstart/#response-status-codes"
 
 r = requests.get(url)
-html = r.text
-print(html)
+print(f'Status of request sent to {url}: {r.status_code}')
 
-s = BeautifulSoup(html, 'html.parser')
-for link in s.find_all('a'):
-    print('found a link')
-s = {"this", 'is', 'a', 'file'}
-for i in s:
-    print(i)
+s = BeautifulSoup(r.text, 'html.parser')
+# s.find("title").text
+# s.title.text
+print(f'Title of url: {s.find("title").text}')
