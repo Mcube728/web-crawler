@@ -10,14 +10,14 @@ import queue
 from pathlib import Path
 import urllib.robotparser as urobot
 
-def run(toVisit):
+def run(toVisit,  crawled):
     infoLogger('run() method called')
     while toVisit: 
         url =  toVisit.pop()
         infoLogger(f'{url} got removed from the queue')
-        crawl(url)
+        crawl(url, toVisit, crawled)
 
-def crawl(url):
+def crawl(url, toVisit, crawled):
     infoLogger(f'crawl() method called; url = {url}')
     print(f'Queued Links: {len(toVisit)} | Crawled Links: {len(crawled)}')
     try:
@@ -37,7 +37,7 @@ def crawl(url):
         if title == 'na':
             return
         json = returnJSON(title, description, url)
-        print(json)
+        print(f'JSON: {json}')
     except Exception as e:
         errorLogger(e)
 
@@ -58,6 +58,5 @@ def returnJSON(title, desc, url):
     }
     return json
 
-toVisit = {'https://ocw.mit.edu/'}
-crawled = set()
-run(toVisit)
+#toVisit = {'https://ocw.mit.edu/'}
+#crawled = set()
