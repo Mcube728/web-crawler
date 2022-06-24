@@ -8,5 +8,5 @@ formatter = logging.Formatter('%(asctime)s %(levelname)s : %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-def error_logger(message):
+def errorLogger(message):
     logger.error(message)

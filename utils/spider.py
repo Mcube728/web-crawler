@@ -1,5 +1,5 @@
 from mushroom_soup import *
-from time import asctime
+import time
 from info_log import *
 from error_log import *
 import requests
@@ -11,59 +11,47 @@ from pathlib import Path
 import urllib.robotparser as urobot
 
 def run(toVisit):
-    for link in toVisit:
-        crawl(link)
-
-def getHTML(url):
-    info_logger('getHTML() called')
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36 QIHU 360SE'}
-    try: 
-        r = requests.get(url, headers=headers)
-        r.raise_for_status()
-    except requests.exceptions.HTTPError as errh:
-        error_logger(f'Bad Status code: {r.status_code}')
-    except requests.exceptions.ConnectionError as errc:
-        error_logger(f'Error Connecting to {url}')
-    except requests.exceptions.Timeout as errt:
-        error_logger('Timeout Error connecting to {url}')
-    except requests.exceptions.RequestException as err:
-        error_logger('An Error Occurred')
-    info_logger(f'Status code of request set to {url}: {r.status_code}')
-    info_logger(f'getHTML() ran successfully and obtained the content from {url}')
-    return r.text
+    infoLogger('run() method called')
+    while toVisit: 
+        url =  toVisit.pop()
+        infoLogger(f'{url} got removed from the queue')
+        crawl(url)
 
 def crawl(url):
-    info_logger('crawl() called')
-    visited = []
-    toVisit = []
-    html = getHTML(url)
-    soup = BeautifulSoup(html, 'html.parser')
-    info_logger(f'Now crawling ==> {soup.title.text}:{url}')
-    visited.append(url)
-    fileWriter('./data_export/visited_links.txt', soup.title.text + ": " + url + "\n")
-    toVisit.extend(getAnchors(soup,url))
+    infoLogger(f'crawl() method called; url = {url}')
+    print(f'Queued Links: {len(toVisit)} | Crawled Links: {len(crawled)}')
+    try:
+        r = requests.get(url)
+        infoLogger(f'Status: {r.status_code}')
+        s = BeautifulSoup(r.text, 'html.parser')
+        title = None
+        try:
+            title = s.title.text
+        except AttributeError as e:
+            errorLogger(e)
+        description = None
+        try :
+            description = s.find('meta', {'name':'description'}).get('content')
+        except AttributeError as e:
+            errorLogger(e)
+        print(f'Title: {title}')
+        print(f'Description: {description}')
+        for url in getAnchors(url,s):
+            toVisit.add(url)
+        crawled.add(url)
+    except Exception as e:
+        errorLogger(e)
+        return
 
+def getAnchors(url,s):
+    infoLogger('getAnchors() called')
+    for link in s.find_all('a'):
+        if link.get('href') is not None:
+            a = link.get('href')
+            if a.startswith('/'):
+                a = urljoin(url,a)
+            yield a
 
-
-def fileWriter(path, data):
-    f = open(path, 'a')
-    f.write(data)
-    f.close()
-
-def getAnchors(soup, url):
-    info_logger('getAnchors() called')
-    anchors = []
-    for link in soup.find_all('a'):
-        if link.get('href').startswith('/'):
-            path = urljoin(url, link.get('href'))
-            anchors.append(path) # put relative links
-            continue
-        anchors.append(link.get('href')) # put absolute links
-    anchors = list(set(anchors))
-    for a in anchors: 
-        fileWriter('./data_export/queued_links.txt', a + "\n")
-    info_logger(f'getAnchors() ran successfully and obtained {len(anchors)} links')
-    return anchors
-
-url = 'https://reddit.com'
-crawl(url)
+toVisit = {'https://ocw.mit.edu/'}
+crawled = set()
+run(toVisit)

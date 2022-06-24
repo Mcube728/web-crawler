@@ -1,36 +1,37 @@
 import os
 
-def file_writer(path, data):
+def fileMaker(path, data):
     f = open(path, 'w')
     f.write(data)
     f.close()
 
-def make_data_files(url):
-    queue = os.getcwd() + '/data_export/queue.txt'
-    crawled = os.getcwd() + '/data_export/crawled.txt'
+def makeDataFiles(url):
+    queue = './data_export/queue.txt'
+    crawled = './data_export/crawled.txt'
     if not os.path.isfile(queue):
-        file_writer(queue,url)
+        fileMaker(queue,url)
     if not os.path.isfile(crawled):
-        file_writer(crawled,'')
+        fileMaker(crawled,'')
 
-def append_content_to_file(path, data):
+def appendContentToFile(path, data):
     with open(path, 'a') as file:
         file.write(data + '\n')
 
-def clear_file_contents(path):
+def clearFileContents(path):
     with open(path, 'w'):
         pass
 
-def to_set(fileName):
-    results = set()
+def toList(fileName):
+    results = []
     with open(fileName, 'rt') as f:
         for line in f:
-            results.add(line.replace('\n', ''))
+            results.append(line.replace('\n', ''))
     return results
 
-def to_file(links, file):
-    clear_file_contents(file)
+def toFile(links, file):
+    clearFileContents(file)
     for link in links: 
-        append_content_to_file(file, link)
+        appendContentToFile(file, link)
+
 
 print(os.getcwd())
