@@ -21,27 +21,25 @@ def crawl(url):
     infoLogger(f'crawl() method called; url = {url}')
     print(f'Queued Links: {len(toVisit)} | Crawled Links: {len(crawled)}')
     try:
+        title, description = 'na'
         r = requests.get(url)
         infoLogger(f'Status: {r.status_code}')
         s = BeautifulSoup(r.text, 'html.parser')
-        title = None
-        try:
-            title = s.title.text
-        except AttributeError as e:
-            errorLogger(e)
-        description = None
-        try :
-            description = s.find('meta', {'name':'description'}).get('content')
-        except AttributeError as e:
-            errorLogger(e)
-        print(f'Title: {title}')
-        print(f'Description: {description}')
+        #title = None
+        title = s.title.text
+        #description = None
+        description = s.find('meta', {'name':'description'}).get('content')
+        #print(f'Title: {title}')
+        #print(f'Description: {description}')
         for url in getAnchors(url,s):
             toVisit.add(url)
         crawled.add(url)
+        if title == 'na':
+            return
+        json = returnJSON(title, description, url)
+        print(json)
     except Exception as e:
         errorLogger(e)
-        return
 
 def getAnchors(url,s):
     infoLogger('getAnchors() called')
@@ -51,6 +49,14 @@ def getAnchors(url,s):
             if a.startswith('/'):
                 a = urljoin(url,a)
             yield a
+
+def returnJSON(title, desc, url):
+    json = {
+        'Title': title,
+        'Description': desc,
+        'URL': url
+    }
+    return json
 
 toVisit = {'https://ocw.mit.edu/'}
 crawled = set()
