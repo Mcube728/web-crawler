@@ -10,6 +10,7 @@ A simple webcrawler written in python to discover content on the web.
 * BeautifulSoup4
 * Requests
 * Urllib
+* json
 
 You can just install the requirements.txt using pip
 ```
