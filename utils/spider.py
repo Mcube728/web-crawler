@@ -6,11 +6,11 @@ import requests
 import os
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
-import queue
-from pathlib import Path
+import json
 import urllib.robotparser as urobot
 
 def run(toVisit,  crawled):
+    infoLogger('')
     infoLogger('run() method called')
     while toVisit: 
         url =  toVisit.pop()
@@ -35,11 +35,13 @@ def crawl(url, toVisit, crawled):
             toVisit.add(url)
         crawled.add(url)
         if title == 'na':
+            errorLogger(f'This is the title:{title}')
             return
         json = returnJSON(title, description, url)
         print(f'JSON: {json}')
+        updateJSON(json)
     except Exception as e:
-        errorLogger(e)
+        errorLogger(f'URL: {url} | {e}')
 
 def getAnchors(url,s):
     infoLogger('getAnchors() called')
@@ -50,6 +52,19 @@ def getAnchors(url,s):
                 a = urljoin(url,a)
             yield a
 
+def updateJSON(json_data, path='./data_export/results.json'):
+    infoLogger('updateJSON() called')
+    if not os.path.isfile(path):
+        empty = json.dumps({'Links': []}, indent=4)
+        fileMaker(path, empty)
+        infoLogger('Json file created')
+    with open(path, 'r+') as file:
+        data = json.load(file)
+        data['Links'].append(json_data)
+        file.seek(0)
+        json.dump(data, file, indent=4)
+        infoLogger('results.json has been updated')                
+
 def returnJSON(title, desc, url):
     json = {
         'Title': title,
@@ -57,6 +72,3 @@ def returnJSON(title, desc, url):
         'URL': url
     }
     return json
-
-#toVisit = {'https://ocw.mit.edu/'}
-#crawled = set()
