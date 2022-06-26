@@ -102,7 +102,12 @@ def returnJSON(title, desc, url):
     '''
     This function takes the title, description and the url 
     and saves them in a dictionary so that they can be saved
-    in the json file for the crawled links.  
+    in the json file for the crawled links. 
+
+    Parameters:
+        title(str): The title of the webpage crawled
+        desc(str): The description of the webpage crawled
+        url(str): The url of the webpage crawled   
     '''
     json = {
         'Title': title,
