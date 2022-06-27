@@ -1,7 +1,7 @@
-from mushroom_soup import *
 import time
-from info_log import *
-from error_log import *
+#from info_log import info_log.infoLogger
+from utils import info_log
+from utils import error_log
 import requests
 import os
 from urllib.parse import urljoin
@@ -18,11 +18,11 @@ def run(toVisit,  crawled):
         toVisit(set): The set of links that need to be crawled
         crawled(set): The set of links that have been crawled
     '''
-    infoLogger('')
-    infoLogger('run() method called')
+    info_log.infoLogger('')
+    info_log.infoLogger('run() method called')
     while toVisit: 
         url =  toVisit.pop()
-        infoLogger(f'{url} got removed from the queue')
+        info_log.infoLogger(f'{url} got removed from the queue')
         crawl(url, toVisit, crawled)
 
 def crawl(url, toVisit, crawled):
@@ -36,12 +36,12 @@ def crawl(url, toVisit, crawled):
         toVisit(set): The set of links that need to be crawled
         crawled(set): The set of links that have been crawled
     '''
-    infoLogger(f'crawl() method called; url = {url}')
+    info_log.infoLogger(f'crawl() method called; url = {url}')
     print(f'Queued Links: {len(toVisit)} | Crawled Links: {len(crawled)}')
     try:
         title, description = 'na'
         r = requests.get(url)
-        infoLogger(f'Status: {r.status_code}')
+        info_log.infoLogger(f'Status: {r.status_code}')
         s = BeautifulSoup(r.text, 'html.parser')
         title = s.title.text
         description = s.find('meta', {'name':'description'}).get('content')
@@ -49,11 +49,11 @@ def crawl(url, toVisit, crawled):
             toVisit.add(url)
         crawled.add(url)
         if title == 'na':
-            errorLogger(f'This is the title:{title}')
+            error_log.errorLogger(f'This is the title:{title}')
             return
         updateJSON(returnJSON(title, description, url))
     except Exception as e:
-        errorLogger(f'URL: {url} | {e}')
+        error_log.errorLogger(f'URL: {url} | {e}')
 
 def getAnchors(url,s):
     '''
@@ -65,7 +65,7 @@ def getAnchors(url,s):
         url(str): The url that the crawler has visited
         s('bs4.BeautifulSoup'): The BeautifulSoup object
     '''
-    infoLogger('getAnchors() called')
+    info_log.infoLogger('getAnchors() called')
     for link in s.find_all('a'):
         if link.get('href') is not None:
             a = link.get('href')
@@ -85,17 +85,17 @@ def updateJSON(json_data, path='./data_export/results.json'):
         json_data('dict'): The dictionary that contains the title, description and url of the visited page
         path(str): The path to save the JSON file   
     '''
-    infoLogger('updateJSON() called')
+    info_log.infoLogger('updateJSON() called')
     if not os.path.isfile(path):
         empty = json.dumps({'Links': []}, indent=4)
         fileMaker(path, empty)
-        infoLogger('Json file created')
+        info_log.infoLogger('Json file created')
     with open(path, 'r+') as file:
         data = json.load(file)
         data['Links'].append(json_data)
         file.seek(0)    # Change file position to the start, so that another dictionary is not written to the json file. 
         json.dump(data, file, indent=4)
-        infoLogger('results.json has been updated') 
+        info_log.infoLogger('results.json has been updated') 
         file.close()               
 
 def returnJSON(title, desc, url):
@@ -115,3 +115,8 @@ def returnJSON(title, desc, url):
         'URL': url
     }
     return json
+
+def fileMaker(path, data):
+    with open(path, 'w') as f:
+        f.write(data)
+        f.close

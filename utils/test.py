@@ -1,6 +1,6 @@
 import spider
 
-toVisit = {'https://www.dmoz-odp.org/'}
+toVisit = {'https://www.nationalgeographic.com/'}
 crawled = set()
 
 spider.run(toVisit, crawled)
